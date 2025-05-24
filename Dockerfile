@@ -16,7 +16,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # 5. Copy your Flask app
-COPY api/app.py .
+COPY app.py .
 
 # 6. Expose the port Render expects
 EXPOSE 10000
