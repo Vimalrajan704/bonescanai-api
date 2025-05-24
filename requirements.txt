@@ -1,0 +1,7 @@
+flask
+flask-cors
+ultralytics
+pillow
+numpy
+requests
+gunicorn
