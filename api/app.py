@@ -7,13 +7,9 @@ import gdown
 import numpy as np
 from PIL import Image
 from ultralytics import YOLO
-from flask import Flask, request, jsonify, make_response
-from flask_cors import CORS
+from flask import Flask, request, jsonify, make_response, render_template, send_from_directory
 
-
-app = Flask(__name__)
-
-CORS(app, origins=["https://bone-scan-ai.vercel.app"])
+app = Flask(__name__, static_folder="static", template_folder="templates")
 
 # Where we’ll store the downloaded model
 MODEL_PATH = os.path.join(tempfile.gettempdir(), "best.pt")
@@ -23,24 +19,25 @@ def load_model():
         url = os.getenv("MODEL_URL")
         if not url:
             raise RuntimeError("MODEL_URL not set")
-        # gdown handles Drive confirmation tokens automatically
         gdown.download(url, MODEL_PATH, quiet=False)
     return YOLO(MODEL_PATH)
 
-# cold-start load
 model = load_model()
 
-@app.route("/", methods=["GET", "OPTIONS"])
-def index():
-    if request.method == "OPTIONS":
-        return make_response("", 200)
-    return jsonify({"message": "Server is running!"})
+@app.route("/")
+def home():
+    return render_template("index.html")
 
-@app.route("/analyze", methods=["POST", "OPTIONS"])
+@app.route("/about")
+def about():
+    return render_template("about.html")
+
+@app.route("/favicon.ico")
+def favicon():
+    return send_from_directory(os.path.join(app.root_path), "favicon.ico", mimetype="image/vnd.microsoft.icon")
+
+@app.route("/analyze", methods=["POST"])
 def analyze():
-    if request.method == "OPTIONS":
-        return make_response("", 200)
-
     if "image" not in request.files:
         return jsonify({"error": "No image uploaded"}), 400
 
