@@ -11,6 +11,10 @@ from flask import Flask, request, jsonify, make_response
 
 app = Flask(__name__)
 
+# Only allow this frontend
+ALLOWED_ORIGIN = "https://bone-scan-ai.vercel.app"
+
+
 # Where we’ll store the downloaded model
 MODEL_PATH = os.path.join(tempfile.gettempdir(), "best.pt")
 
@@ -26,13 +30,15 @@ def load_model():
 # cold-start load
 model = load_model()
 
-# CORS on every response
 @app.after_request
 def add_cors(response):
-    response.headers["Access-Control-Allow-Origin"]  = "*"
-    response.headers["Access-Control-Allow-Methods"] = "GET,POST,OPTIONS"
-    response.headers["Access-Control-Allow-Headers"] = "Content-Type,Authorization"
+    origin = request.headers.get("Origin", "")
+    if origin == ALLOWED_ORIGIN:
+        response.headers["Access-Control-Allow-Origin"] = ALLOWED_ORIGIN
+        response.headers["Access-Control-Allow-Methods"] = "GET,POST,OPTIONS"
+        response.headers["Access-Control-Allow-Headers"] = "Content-Type,Authorization"
     return response
+
 
 @app.route("/", methods=["GET", "OPTIONS"])
 def index():
