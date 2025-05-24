@@ -1,4 +1,4 @@
-import os, io, base64, tempfile, requests, numpy as np
+import os, io, base64, tempfile, requests, gdown, numpy as np
 from PIL import Image
 from ultralytics import YOLO
 from flask import Flask, request, jsonify
@@ -12,11 +12,8 @@ MODEL_PATH = os.path.join(tempfile.gettempdir(), "best.pt")
 def load_model():
     if not os.path.exists(MODEL_PATH):
         url = os.getenv("MODEL_URL")
-        resp = requests.get(url, stream=True)
-        resp.raise_for_status()
-        with open(MODEL_PATH, "wb") as f:
-            for chunk in resp.iter_content(1024 * 1024):
-                f.write(chunk)
+        # gdown handles large-file confirmation tokens automatically
+        gdown.download(url, MODEL_PATH, quiet=False)
     return YOLO(MODEL_PATH)
 
 model = load_model()
