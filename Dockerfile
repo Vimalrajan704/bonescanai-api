@@ -15,8 +15,10 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 5. Copy your Flask app
-COPY app.py .
+# 5. Copy your Flask app and required directories
+COPY app.py . 
+COPY templates/ templates/
+COPY static/ static/
 
 # 6. Expose the port Render expects
 EXPOSE 10000
