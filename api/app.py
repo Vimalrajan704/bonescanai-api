@@ -8,12 +8,12 @@ import numpy as np
 from PIL import Image
 from ultralytics import YOLO
 from flask import Flask, request, jsonify, make_response
+from flask_cors import CORS
+
 
 app = Flask(__name__)
 
-# Only allow this frontend
-ALLOWED_ORIGIN = "https://bone-scan-ai.vercel.app"
-
+CORS(app, origins=["https://bone-scan-ai.vercel.app"])
 
 # Where we’ll store the downloaded model
 MODEL_PATH = os.path.join(tempfile.gettempdir(), "best.pt")
@@ -29,16 +29,6 @@ def load_model():
 
 # cold-start load
 model = load_model()
-
-@app.after_request
-def add_cors(response):
-    origin = request.headers.get("Origin", "")
-    if origin == ALLOWED_ORIGIN:
-        response.headers["Access-Control-Allow-Origin"] = ALLOWED_ORIGIN
-        response.headers["Access-Control-Allow-Methods"] = "GET,POST,OPTIONS"
-        response.headers["Access-Control-Allow-Headers"] = "Content-Type,Authorization"
-    return response
-
 
 @app.route("/", methods=["GET", "OPTIONS"])
 def index():
