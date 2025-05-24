@@ -1,18 +1,25 @@
 # 1. Base image: Python slim
 FROM python:3.10-slim
 
-# 2. Set working directory
+# 2. Install system libraries required by OpenCV
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+      libgl1 \
+      libglib2.0-0 && \
+    rm -rf /var/lib/apt/lists/*
+
+# 3. Set working directory
 WORKDIR /app
 
-# 3. Copy and install dependencies
+# 4. Copy and install Python dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 4. Copy your app code
+# 5. Copy your Flask app
 COPY api/app.py .
 
-# 5. Expose the port Render expects (10000)
+# 6. Expose the port Render expects
 EXPOSE 10000
 
-# 6. Launch with Gunicorn (production-grade server)
+# 7. Launch with Gunicorn
 CMD ["gunicorn", "app:app", "-b", "0.0.0.0:10000", "--timeout", "300"]
